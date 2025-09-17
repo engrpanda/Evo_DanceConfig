@@ -1,48 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:background="#F5F5F5"
+    android:padding="8dp">
 
-    <!-- Left control bar (20% width) -->
+    <!-- Left Control Panel -->
+    <LinearLayout
+        android:layout_width="180dp"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:elevation="4dp"
+        android:padding="12dp">
+
+        <!-- Title -->
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EVO Dance Manager"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:layout_marginBottom="12dp" />
+
+        <!-- Scrollable Buttons -->
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadMusic"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pull Music"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnDownloadJson"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pull JSON"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnPushToRobot"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Push to Robot"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnOpenFolder"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Open Folder"
+                    android:visibility="gone"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnClearLog"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Clear Log"
+                    android:visibility="gone"
+                    android:layout_marginBottom="8dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnExit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Exit"
+                    android:layout_marginTop="8dp"
+                    android:backgroundTint="#F44336"
+                    android:textColor="@android:color/white" />
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+
+    <!-- Right Status Panel -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="2"
-        android:orientation="vertical">
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:background="@android:color/white"
+        android:padding="12dp"
+        android:elevation="2dp">
 
-        <Button
-            android:id="@+id/btnDownload"
+        <TextView
+            android:id="@+id/tvLogTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Status Log"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:layout_marginBottom="8dp" />
+
+        <ScrollView
+            android:id="@+id/scrollLog"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="Download" />
+            android:layout_weight="1">
 
-        <Button
-            android:id="@+id/btnSelectMusic"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="Music" />
-
-        <Button
-            android:id="@+id/btnSelectJson"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="JSON" />
-
-        <Button
-            android:id="@+id/btnCopyFiles"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:text="Copy" />
+            <LinearLayout
+                android:id="@+id/logContainer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
     </LinearLayout>
-
-    <!-- WebView area (80% width) -->
-    <WebView
-        android:id="@+id/webView"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="8" />
 </LinearLayout>

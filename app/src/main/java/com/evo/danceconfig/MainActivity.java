@@ -2,168 +2,228 @@ package com.evo.danceconfig;
 
 import android.Manifest;
 import android.app.DownloadManager;
-import android.content.ClipData;
-import android.content.Intent;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.View;
-import android.webkit.DownloadListener;
-import android.webkit.WebChromeClient;
-import android.webkit.WebSettings;
-import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.Toast;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.google.android.material.button.MaterialButton;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.channels.FileChannel;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int REQ_PICK_MUSIC = 1001;
-    private static final int REQ_PICK_JSON = 1002;
+    private static final int REQUEST_STORAGE_PERMISSION = 100;
 
-    private Uri musicUri = null;
-    private Uri jsonUri = null;
+    private LinearLayout logContainer;
+    private ScrollView scrollLog;
 
-    private String copyDestPath = "/sdcard/robot/rndata/system_ccfda69b10253ec17722dfd329d3bf01/extra/";
+    private final String musicUrl = "https://github.com/engrpanda/Evo_DanceConfig/releases/download/v0.1/minibotmusic.mp3";
+    private final String jsonUrl = "https://raw.githubusercontent.com/engrpanda/Evo_DanceConfig/refs/heads/master/danceconfig.json";
+    private final String robotPath = "/sdcard/robot/rndata/system_ccfda69b10253ec17722dfd329d3bf01/extra/";
+
+    private File musicFile;
+    private File jsonFile;
+    private File logFile;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main); // uses your XML layout
+        setContentView(R.layout.activity_main);
 
-        requestPermissions();
+        logContainer = findViewById(R.id.logContainer);
+        scrollLog = findViewById(R.id.scrollLog);
 
-        WebView webView = findViewById(R.id.webView);
-        Button btnDownload = findViewById(R.id.btnDownload);
-        Button btnSelectMusic = findViewById(R.id.btnSelectMusic);
-        Button btnSelectJson = findViewById(R.id.btnSelectJson);
-        Button btnCopyFiles = findViewById(R.id.btnCopyFiles);
+        logFile = new File(getFilesDir(), "danceconfig_log.txt");
+        loadLogs();
 
-        // Setup WebView
-        WebSettings webSettings = webView.getSettings();
-        webSettings.setJavaScriptEnabled(true);
-        webSettings.setAllowFileAccess(true);
-        webSettings.setDomStorageEnabled(true);
+        MaterialButton btnDownloadMusic = findViewById(R.id.btnDownloadMusic);
+        MaterialButton btnDownloadJson = findViewById(R.id.btnDownloadJson);
+        MaterialButton btnPushToRobot = findViewById(R.id.btnPushToRobot);
+        MaterialButton btnOpenFolder = findViewById(R.id.btnOpenFolder);
+        MaterialButton btnClearLog = findViewById(R.id.btnClearLog);
 
-        webView.setWebViewClient(new WebViewClient());
-        webView.setWebChromeClient(new WebChromeClient());
-
-        // Handle downloads from WebView
-        webView.setDownloadListener(new DownloadListener() {
-            @Override
-            public void onDownloadStart(String url, String userAgent, String contentDisposition, String mimeType, long contentLength) {
-                DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url));
-                request.setMimeType(mimeType);
-                String fileName = contentDisposition.replace("inline; filename=", "").replace("\"", "");
-                request.addRequestHeader("User-Agent", userAgent);
-                request.setDescription("Downloading file...");
-                request.setTitle(fileName);
-                request.allowScanningByMediaScanner();
-                request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-                request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName);
-
-                DownloadManager dm = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
-                dm.enqueue(request);
-                Toast.makeText(MainActivity.this, "Downloading " + fileName, Toast.LENGTH_SHORT).show();
-            }
+        MaterialButton btnExit = findViewById(R.id.btnExit);
+        btnExit.setOnClickListener(v -> {
+            log("Exiting app...");
+            finishAffinity(); // Close app completely
         });
 
-        // Button: open GitHub release in WebView
-        btnDownload.setOnClickListener(v -> webView.loadUrl("https://github.com/engrpanda/Evo_AppStore/releases/tag/1.0.1"));
 
-        // Button: select music file
-        btnSelectMusic.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("audio/*");
-            startActivityForResult(Intent.createChooser(intent, "Select Music"), REQ_PICK_MUSIC);
-        });
-
-        // Button: select JSON file
-        btnSelectJson.setOnClickListener(v -> {
-            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-            intent.setType("application/json");
-            startActivityForResult(Intent.createChooser(intent, "Select JSON"), REQ_PICK_JSON);
-        });
-
-        // Button: copy selected files
-        btnCopyFiles.setOnClickListener(v -> {
-            if (musicUri == null && jsonUri == null) {
-                Toast.makeText(this, "No files selected", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            File destDir = new File(copyDestPath);
-            if (!destDir.exists()) {
-                if (!destDir.mkdirs()) {
-                    Toast.makeText(this, "Failed to create destination folder", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-            }
-
-            if (musicUri != null) {
-                copyFile(musicUri, new File(destDir, "music.mp3")); // fixed name or extract from Uri
-            }
-            if (jsonUri != null) {
-                copyFile(jsonUri, new File(destDir, "data.json")); // fixed name or extract from Uri
-            }
-
-            Toast.makeText(this, "Files copied!", Toast.LENGTH_SHORT).show();
+        btnDownloadMusic.setOnClickListener(v -> checkPermissionAndDownload("Music", musicUrl, "minibotmusic.mp3"));
+        btnDownloadJson.setOnClickListener(v -> checkPermissionAndDownload("JSON", jsonUrl, "danceconfig.json"));
+        btnPushToRobot.setOnClickListener(v -> checkPermissionAndPush());
+        btnOpenFolder.setOnClickListener(v -> log("Opening folder: " + robotPath));
+        btnClearLog.setOnClickListener(v -> {
+            logContainer.removeAllViews();
+            if (logFile.exists()) logFile.delete();
+            log("Log cleared.");
         });
     }
 
-    private void requestPermissions() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            String[] perms = {
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-            };
-            ActivityCompat.requestPermissions(this, perms, 123);
+    private void checkPermissionAndDownload(String type, String url, String fileName) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            return;
         }
+        downloadFile(type, url, fileName);
     }
 
-    private void copyFile(Uri srcUri, File destFile) {
-        try {
-            InputStream in = getContentResolver().openInputStream(srcUri);
-            OutputStream out = new FileOutputStream(destFile);
-
-            byte[] buf = new byte[1024];
-            int len;
-            while ((len = in.read(buf)) > 0) {
-                out.write(buf, 0, len);
-            }
-            in.close();
-            out.close();
-        } catch (Exception e) {
-            Toast.makeText(this, "Copy failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+    private void checkPermissionAndPush() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M &&
+                ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, REQUEST_STORAGE_PERMISSION);
+            return;
         }
+        pushFiles();
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
-        if (resultCode == RESULT_OK && data != null) {
-            Uri uri = data.getData();
-            if (requestCode == REQ_PICK_MUSIC) {
-                musicUri = uri;
-                Toast.makeText(this, "Music selected", Toast.LENGTH_SHORT).show();
-            } else if (requestCode == REQ_PICK_JSON) {
-                jsonUri = uri;
-                Toast.makeText(this, "JSON selected", Toast.LENGTH_SHORT).show();
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == REQUEST_STORAGE_PERMISSION) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                log("Storage permission granted. Please retry the action.");
+            } else {
+                log("Storage permission denied. Cannot perform action.");
             }
         }
+    }
+
+    private void downloadFile(String type, String url, String fileName) {
+        log("Downloading " + type + " from: " + url);
+
+        File downloadDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        if (!downloadDir.exists()) downloadDir.mkdirs();
+
+        File targetFile = new File(downloadDir, fileName);
+
+        // Always overwrite old file
+        if (targetFile.exists() && !targetFile.delete()) {
+            log("Warning: Cannot delete old " + type + " file. Will try to overwrite.");
+        }
+
+        if (type.equals("Music")) musicFile = targetFile;
+        else jsonFile = targetFile;
+
+        Uri fileUri = Uri.fromFile(targetFile);
+
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(url))
+                .setTitle("Downloading " + fileName)
+                .setDescription("Please wait...")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationUri(fileUri);
+
+        DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+        long downloadId = dm.enqueue(request);
+
+        new Thread(() -> {
+            boolean downloading = true;
+            while (downloading) {
+                DownloadManager.Query q = new DownloadManager.Query().setFilterById(downloadId);
+                Cursor cursor = dm.query(q);
+                if (cursor != null && cursor.moveToFirst()) {
+                    int status = cursor.getInt(cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_STATUS));
+                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        runOnUiThread(() -> log(type + " downloaded: " + targetFile.getName() + " (" + formatDate(targetFile.lastModified()) + ")"));
+                        downloading = false;
+                    }
+                    cursor.close();
+                }
+                try { Thread.sleep(500); } catch (Exception ignored) {}
+            }
+        }).start();
+    }
+
+    private void pushFiles() {
+        if (musicFile == null || !musicFile.exists() || jsonFile == null || !jsonFile.exists()) {
+            log("Error: Download Music and JSON first before pushing.");
+            return;
+        }
+
+        log("Pushing files to robot folder: " + robotPath);
+        File robotDir = new File(robotPath);
+        if (!robotDir.exists() && !robotDir.mkdirs()) {
+            log("Error: Cannot create robot folder.");
+            return;
+        }
+
+        copyFile(musicFile, new File(robotDir, musicFile.getName()));
+        copyFile(jsonFile, new File(robotDir, jsonFile.getName()));
+
+        log("Files pushed successfully to robot folder.");
+    }
+
+    private void copyFile(File src, File dst) {
+        try (FileChannel inChannel = new FileInputStream(src).getChannel();
+             FileChannel outChannel = new FileOutputStream(dst).getChannel()) {
+            outChannel.transferFrom(inChannel, 0, inChannel.size());
+            log("Copied: " + dst.getName() + " (" + formatDate(dst.lastModified()) + ")");
+        } catch (Exception e) {
+            log("Error copying file: " + e.getMessage());
+        }
+    }
+
+    private void loadLogs() {
+        if (logFile.exists()) {
+            try (FileInputStream fis = new FileInputStream(logFile)) {
+                byte[] bytes = new byte[(int) logFile.length()];
+                fis.read(bytes);
+                String content = new String(bytes);
+                for (String line : content.split("\n")) {
+                    addLogToView(line);
+                }
+            } catch (Exception e) {
+                addLogToView("Error loading logs: " + e.getMessage());
+            }
+        }
+    }
+
+    private void log(String message) {
+        String timestamp = new SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(new Date());
+        String fullMessage = "[" + timestamp + "] " + message;
+
+        addLogToView(fullMessage);
+        appendLogToFile(fullMessage);
+    }
+
+    private void addLogToView(String message) {
+        TextView tv = new TextView(this);
+        tv.setText(message);
+        tv.setTextSize(14f);
+        tv.setTextColor(0xFF333333);
+        logContainer.addView(tv);
+        scrollLog.post(() -> scrollLog.fullScroll(View.FOCUS_DOWN));
+    }
+
+    private void appendLogToFile(String message) {
+        try (FileOutputStream fos = new FileOutputStream(logFile, true)) { // append = true
+            fos.write((message + "\n").getBytes());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String formatDate(long millis) {
+        return new SimpleDateFormat("dd-MMM-yyyy HH:mm", Locale.getDefault()).format(new Date(millis));
     }
 }
