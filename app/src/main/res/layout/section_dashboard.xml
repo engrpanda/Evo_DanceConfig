@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:padding="24dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="EVO Dance Manager" />
+
+        <TextView
+            style="@style/Text.Muted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="20dp"
+            android:text="Manage, test and sync the robot dance sound and config." />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <!-- Left column -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/dotServer"
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:layout_marginEnd="10dp"
+                                android:background="@drawable/dot" />
+
+                            <TextView
+                                style="@style/Text.Section"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Web server" />
+
+                            <TextView
+                                android:id="@+id/tvServerState"
+                                style="@style/Text.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvServerUrls"
+                            style="@style/Text.Mono"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/log_bg"
+                            android:padding="12dp"
+                            android:textIsSelectable="true" />
+
+                        <TextView
+                            style="@style/Text.Muted"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Open any of these addresses in a browser to upload, download, edit and test remotely. Use localhost on the robot itself." />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnServerToggle"
+                            style="@style/Btn.Tonal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            app:icon="@drawable/ic_power" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <View
+                                android:id="@+id/dotFolder"
+                                android:layout_width="10dp"
+                                android:layout_height="10dp"
+                                android:layout_marginEnd="10dp"
+                                android:background="@drawable/dot" />
+
+                            <TextView
+                                style="@style/Text.Section"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Robot folder" />
+
+                            <TextView
+                                android:id="@+id/tvFolderState"
+                                style="@style/Text.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <TextView
+                            android:id="@+id/tvFolderPath"
+                            style="@style/Text.Mono"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:background="@drawable/log_bg"
+                            android:padding="12dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnGrantAccess"
+                            style="@style/Btn.Primary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:text="Grant storage access"
+                            android:visibility="gone"
+                            app:icon="@drawable/ic_folder" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+
+            <!-- Right column -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            style="@style/Text.Section"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Dance list" />
+
+                        <TextView
+                            android:id="@+id/tvCurrentName"
+                            style="@style/Text.Title"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:singleLine="true" />
+
+                        <TextView
+                            android:id="@+id/tvCurrentMeta"
+                            style="@style/Text.Muted"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnTestCurrent"
+                            style="@style/Btn.Primary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="18dp"
+                            android:text="Open dance list"
+                            app:icon="@drawable/ic_tune" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            style="@style/Text.Section"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sync from GitHub" />
+
+                        <TextView
+                            style="@style/Text.Muted"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="Downloads the music and dance config straight into the robot folder, replacing the old files. URLs are in Settings." />
+
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progressPull"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="14dp"
+                            android:indeterminate="true"
+                            android:visibility="invisible"
+                            app:trackCornerRadius="4dp" />
+
+                        <com.google.android.material.button.MaterialButton
+                            android:id="@+id/btnPullAll"
+                            style="@style/Btn.Tonal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:text="Pull latest music + config"
+                            app:icon="@drawable/ic_download" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

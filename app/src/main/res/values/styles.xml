@@ -1,10 +1,81 @@
 <resources>
-    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <!-- Material colors -->
-        <item name="colorPrimary">#1976D2</item>
-        <item name="colorPrimaryVariant">#1565C0</item>
-        <item name="colorOnPrimary">#FFFFFF</item>
-        <item name="colorSecondary">#03DAC6</item>
-        <item name="colorOnSecondary">#000000</item>
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_violet</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">#E6DFFF</item>
+        <item name="colorOnPrimaryContainer">#1B0A66</item>
+        <item name="colorSecondary">@color/brand_cyan</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="android:colorBackground">@color/bg_light</item>
+        <item name="colorSurface">@color/card_light</item>
+        <item name="colorOnSurface">@color/text_light</item>
+        <item name="colorOnSurfaceVariant">@color/muted_light</item>
+        <item name="colorSurfaceVariant">#ECEEF6</item>
+        <item name="colorOutline">@color/line_light</item>
+        <item name="colorError">@color/status_error</item>
+        <item name="android:statusBarColor">@color/bg_light</item>
+        <item name="android:navigationBarColor">@color/bg_light</item>
+        <item name="shapeAppearanceMediumComponent">@style/Shape.Rounded16</item>
+    </style>
+
+    <style name="Shape.Rounded16" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+    </style>
+
+    <!-- Section building blocks -->
+    <style name="Card" parent="Widget.Material3.CardView.Filled">
+        <item name="cardBackgroundColor">?attr/colorSurface</item>
+        <item name="cardCornerRadius">16dp</item>
+        <item name="cardElevation">0dp</item>
+        <item name="strokeColor">?attr/colorOutline</item>
+        <item name="strokeWidth">1dp</item>
+    </style>
+
+    <style name="Text.Title" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Text.Section" parent="TextAppearance.Material3.LabelLarge">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:letterSpacing">0.08</item>
+    </style>
+
+    <style name="Text.Body" parent="TextAppearance.Material3.BodyMedium">
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Text.Muted" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:textColor">?attr/colorOnSurfaceVariant</item>
+    </style>
+
+    <style name="Text.Mono" parent="TextAppearance.Material3.BodySmall">
+        <item name="android:fontFamily">monospace</item>
+        <item name="android:textColor">?attr/colorOnSurface</item>
+    </style>
+
+    <style name="Btn.Primary" parent="Widget.Material3.Button">
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="Btn.Tonal" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="Btn.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="Btn.Danger" parent="Widget.Material3.Button.TonalButton">
+        <item name="android:minHeight">48dp</item>
+        <item name="backgroundTint">#33EF4444</item>
+        <item name="android:textColor">@color/status_error</item>
+        <item name="iconTint">@color/status_error</item>
+    </style>
+
+    <style name="Field" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="android:layout_marginBottom">12dp</item>
     </style>
 </resources>

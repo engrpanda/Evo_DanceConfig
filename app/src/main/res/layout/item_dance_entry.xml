@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="6dp"
+    android:background="@drawable/log_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingTop="4dp"
+    android:paddingEnd="4dp"
+    android:paddingBottom="4dp">
+
+    <EditText
+        android:id="@+id/etEntryFile"
+        style="@style/Text.Mono"
+        android:layout_width="0dp"
+        android:layout_height="48dp"
+        android:layout_weight="1"
+        android:background="@null"
+        android:hint="/song.mp3"
+        android:imeOptions="flagNoExtractUi"
+        android:inputType="textNoSuggestions"
+        android:singleLine="true"
+        android:textSize="14sp" />
+
+    <Spinner
+        android:id="@+id/spEntryEmoji"
+        android:layout_width="72dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="8dp" />
+
+    <Spinner
+        android:id="@+id/spEntryHead"
+        android:layout_width="72dp"
+        android:layout_height="48dp" />
+
+    <Spinner
+        android:id="@+id/spEntryFoot"
+        android:layout_width="72dp"
+        android:layout_height="48dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEntryPlay"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:contentDescription="Play on robot"
+        app:icon="@drawable/ic_play" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnEntryDelete"
+        style="@style/Widget.Material3.Button.IconButton"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:contentDescription="Remove song"
+        app:icon="@drawable/ic_delete"
+        app:iconTint="@color/status_error" />
+</LinearLayout>

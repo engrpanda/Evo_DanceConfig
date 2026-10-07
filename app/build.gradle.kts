@@ -12,14 +12,16 @@ android {
         applicationId = "com.evo.danceconfig"
         minSdk = 21
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
+            // Sideload build for the robots: signed with the debug key because the project has no release keystore.
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

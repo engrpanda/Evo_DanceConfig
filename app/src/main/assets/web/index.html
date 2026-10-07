@@ -1,0 +1,875 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EVO Dance Manager</title>
+<style>
+:root{
+  --bg:#f4f5fa; --card:#fff; --text:#171a26; --muted:#5e6378; --line:#e1e3ee; --soft:#eceef6;
+  --primary:#6d4aff; --on-primary:#fff; --primary-soft:#e6dfff; --on-primary-soft:#1b0a66;
+  --ok:#16a34a; --warn:#d97706; --err:#dc2626; --shadow:0 1px 2px rgba(20,20,40,.06),0 8px 24px rgba(20,20,40,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#0f1117; --card:#181b25; --text:#eef0f8; --muted:#9aa0b8; --line:#2a2e3d; --soft:#232736;
+    --primary:#b7a6ff; --on-primary:#1b0a66; --primary-soft:#3a2a8c; --on-primary-soft:#e6dfff;
+    --ok:#22c55e; --warn:#f59e0b; --err:#ff6b6b; --shadow:none;
+  }
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+#urls{white-space:pre-line}
+html,body{margin:0}
+body{background:var(--bg);color:var(--text);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;padding-bottom:84px}
+h1,h2,h3{margin:0;line-height:1.2}
+button,input,select,textarea{font:inherit;color:inherit}
+.muted{color:var(--muted)}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:13px}
+svg.i{width:20px;height:20px;fill:currentColor;flex:none}
+
+/* layout */
+.shell{display:grid;grid-template-columns:232px 1fr;min-height:100vh}
+.side{background:var(--card);border-right:1px solid var(--line);padding:20px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px}
+.brand{display:flex;align-items:center;gap:10px;padding:4px 10px 18px}
+.logo{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,#6d4aff,#22d3ee);display:grid;place-items:center;color:#fff}
+.brand b{font-size:16px;display:block}
+.brand span{font-size:12px;color:var(--muted)}
+.nav button{all:unset;box-sizing:border-box;width:100%;display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;cursor:pointer;color:var(--muted);font-weight:600}
+.nav button:hover{background:var(--soft)}
+.nav button[aria-current=page]{background:var(--primary-soft);color:var(--on-primary-soft)}
+.nav button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.conn{margin-top:auto;padding:12px;border-radius:12px;background:var(--soft);font-size:13px}
+.conn .row{display:flex;align-items:center;gap:8px;font-weight:600}
+main{padding:28px clamp(16px,4vw,40px);max-width:1100px;width:100%}
+.head{margin-bottom:22px}
+.head h1{font-size:26px}
+.head p{margin:4px 0 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.card h3{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.stack{display:flex;flex-direction:column;gap:16px}
+.dot{width:10px;height:10px;border-radius:50%;background:var(--muted);flex:none}
+.dot.ok{background:var(--ok)} .dot.warn{background:var(--warn)} .dot.err{background:var(--err)}
+.box{background:var(--soft);border-radius:12px;padding:10px 12px;word-break:break-all}
+.big{font-size:20px;font-weight:700;word-break:break-all}
+
+/* controls */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:0;border-radius:12px;padding:10px 16px;font-weight:600;cursor:pointer;background:var(--primary);color:var(--on-primary);min-height:42px}
+.btn:hover{filter:brightness(1.07)} .btn:disabled{opacity:.45;cursor:not-allowed;filter:none}
+.btn:focus-visible,.icon:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.btn.tonal{background:var(--primary-soft);color:var(--on-primary-soft)}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--text)}
+.btn.danger{background:color-mix(in srgb,var(--err) 16%,transparent);color:var(--err)}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.icon{border:0;background:transparent;border-radius:10px;width:38px;height:38px;display:grid;place-items:center;cursor:pointer;color:var(--muted)}
+.icon:hover{background:var(--soft);color:var(--text)}
+.icon.on{background:var(--primary-soft);color:var(--on-primary-soft)}
+.icon.del:hover{color:var(--err)}
+label.f{display:block;margin-bottom:14px}
+label.f>span{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:var(--muted)}
+input[type=text],input[type=number],input[type=password],textarea{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px}
+input:focus,textarea:focus{outline:2px solid var(--primary);outline-offset:-1px;border-color:transparent}
+textarea{min-height:260px;resize:vertical}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.three{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.switch{display:flex;align-items:center;gap:10px;margin:6px 0 14px;cursor:pointer}
+input[type=range]{width:100%;accent-color:var(--primary)}
+.badge{font-size:10px;font-weight:800;letter-spacing:.06em;background:var(--primary-soft);color:var(--on-primary-soft);padding:2px 8px;border-radius:8px}
+progress{width:100%;height:6px;border-radius:6px;appearance:none;border:0;background:var(--soft)}
+progress::-webkit-progress-bar{background:var(--soft);border-radius:6px}
+progress::-webkit-progress-value{background:var(--primary);border-radius:6px}
+progress::-moz-progress-bar{background:var(--primary);border-radius:6px}
+
+/* files */
+.drop{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px dashed var(--line);border-radius:16px;padding:28px;text-align:center;cursor:pointer;background:var(--card);transition:.15s}
+.drop:hover,.drop.over{border-color:var(--primary);background:var(--primary-soft);color:var(--on-primary-soft)}
+.drop b{display:block;font-size:16px}
+.file{display:flex;align-items:center;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.file.playing{border-color:var(--primary)}
+.kind{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;color:var(--primary);flex:none}
+.file .meta{flex:1;min-width:0}
+.file .name{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;gap:8px;align-items:center}
+.upl{display:flex;flex-direction:column;gap:6px;font-size:13px;margin-top:10px}
+
+/* log */
+.log{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 16px;height:min(62vh,640px);overflow:auto}
+.log div{padding:2px 0;white-space:pre-wrap;word-break:break-word}
+.log .ok{color:var(--ok)} .log .warn{color:var(--warn)} .log .error{color:var(--err)}
+
+/* dance entries */
+.entry{margin-bottom:14px}
+.entry .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+
+/* player bar */
+.player{position:fixed;left:232px;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);padding:12px clamp(16px,4vw,40px);display:flex;align-items:center;gap:14px;z-index:5}
+.player .now{flex:1;min-width:0}
+.player .now b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.seg{display:inline-flex;background:var(--soft);border-radius:12px;padding:3px}
+.seg button{border:0;background:transparent;padding:6px 12px;border-radius:9px;font-weight:600;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--text);box-shadow:0 1px 3px rgba(0,0,0,.15)}
+
+/* toast + modal */
+#toasts{position:fixed;right:16px;top:16px;display:flex;flex-direction:column;gap:8px;z-index:30}
+.toast{background:var(--text);color:var(--bg);padding:10px 14px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,.25);max-width:360px;font-weight:600}
+.toast.err{background:var(--err);color:#fff}
+dialog{border:0;border-radius:18px;padding:24px;background:var(--card);color:var(--text);width:min(92vw,380px);box-shadow:0 20px 60px rgba(0,0,0,.4)}
+dialog::backdrop{background:rgba(0,0,0,.5)}
+
+
+/* trim editor */
+dialog.wide{width:min(96vw,860px)}
+.wave{position:relative;background:var(--soft);border-radius:14px;overflow:hidden;touch-action:none;user-select:none}
+.wave canvas{display:block;width:100%;height:150px;cursor:grab}
+.wave canvas.drag{cursor:grabbing}
+.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 14px;font-weight:600;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--primary);color:var(--on-primary);border-color:transparent}
+.times{display:flex;justify-content:space-between;font-variant-numeric:tabular-nums;margin:8px 2px 14px;font-weight:600}
+.times .mid{color:var(--primary)}
+input.sm{width:84px;text-align:center}
+
+/* active toggle */
+.tog{position:relative;display:inline-flex;align-items:center;gap:8px;cursor:pointer;padding:0 6px;height:38px;font-size:13px;font-weight:700;color:var(--muted)}
+.tog input{position:absolute;opacity:0;width:100%;height:100%;margin:0;cursor:pointer}
+.tog .knob{width:42px;height:24px;border-radius:999px;background:var(--line);position:relative;transition:.15s;flex:none}
+.tog .knob::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.15s;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+.tog input:checked + .knob{background:var(--primary)}
+.tog input:checked + .knob::after{left:21px}
+.tog input:focus-visible + .knob{outline:2px solid var(--primary);outline-offset:2px}
+.tog input:checked ~ .lbl{color:var(--text)}
+.file.off .name{color:var(--muted)}
+.listbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+/* dance list */
+.song{display:grid;grid-template-columns:minmax(0,1fr) 78px 78px 78px auto;gap:8px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:12px;background:var(--card);margin-bottom:6px}
+.song.missing{border-color:var(--err)}
+.song.missing .nm{color:var(--err)}
+.song .cell{display:flex;align-items:center;gap:8px;min-width:0}
+.song .cell input{flex:1;min-width:0}
+.song .tag{font-size:11px;font-weight:700;color:var(--err);white-space:nowrap}
+.songhead span:last-child{width:114px}
+.song input.nm{border-color:transparent;background:var(--soft);padding:8px 10px}
+.song select{width:100%;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px}
+.song .acts{display:flex}
+.songhead{background:transparent;border:0;padding:0 10px;color:var(--muted);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.06em}
+@media (max-width:820px){.song{grid-template-columns:1fr 1fr 1fr}.song .cell,.song .acts{grid-column:1/-1}.songhead{display:none}}
+@media (max-width:820px){
+  .shell{grid-template-columns:1fr}
+  .side{position:static;height:auto;flex-direction:row;align-items:center;overflow-x:auto;padding:10px;border-right:0;border-bottom:1px solid var(--line)}
+  .brand{padding:0 8px 0 4px} .brand span,.conn{display:none}
+  .nav{display:flex;gap:4px}
+  .nav button{width:auto;white-space:nowrap;padding:9px 12px}
+  .player{left:0}
+  .two,.three{grid-template-columns:1fr}
+  .grid{grid-template-columns:1fr}
+  body{padding-bottom:110px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3,13h8V3H3V13zM3,21h8v-6H3V21zM13,21h8V11h-8V21zM13,3v6h8V3H13z"/></symbol>
+  <symbol id="i-folder" viewBox="0 0 24 24"><path d="M10,4H4c-1.1,0 -1.99,0.9 -1.99,2L2,18c0,1.1 0.9,2 2,2h16c1.1,0 2,-0.9 2,-2V8c0,-1.1 -0.9,-2 -2,-2h-8l-2,-2z"/></symbol>
+  <symbol id="i-tune" viewBox="0 0 24 24"><path d="M3,17v2h6v-2H3zM3,5v2h10V5H3zM13,21v-2h8v-2h-8v-2h-2v6h2zM7,9v2H3v2h4v2h2V9H7zM21,13v-2H11v2h10zM15,9h2V7h4V5h-4V3h-2V9z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><path d="M19.14,12.94c0.04,-0.3 0.06,-0.61 0.06,-0.94 0,-0.32 -0.02,-0.64 -0.07,-0.94l2.03,-1.58c0.18,-0.14 0.23,-0.41 0.12,-0.61l-1.92,-3.32c-0.12,-0.22 -0.37,-0.29 -0.59,-0.22l-2.39,0.96c-0.5,-0.38 -1.03,-0.7 -1.62,-0.94L14.4,2.81c-0.04,-0.24 -0.24,-0.41 -0.48,-0.41h-3.84c-0.24,0 -0.43,0.17 -0.47,0.41L9.25,5.35C8.66,5.59 8.12,5.92 7.63,6.29L5.24,5.33c-0.22,-0.08 -0.47,0 -0.59,0.22L2.74,8.87C2.62,9.08 2.66,9.34 2.86,9.48l2.03,1.58C4.84,11.36 4.8,11.69 4.8,12s0.02,0.64 0.07,0.94l-2.03,1.58c-0.18,0.14 -0.23,0.41 -0.12,0.61l1.92,3.32c0.12,0.22 0.37,0.29 0.59,0.22l2.39,-0.96c0.5,0.38 1.03,0.7 1.62,0.94l0.36,2.54c0.05,0.24 0.24,0.41 0.48,0.41h3.84c0.24,0 0.44,-0.17 0.47,-0.41l0.36,-2.54c0.59,-0.24 1.13,-0.56 1.62,-0.94l2.39,0.96c0.22,0.08 0.47,0 0.59,-0.22l1.92,-3.32c0.12,-0.22 0.07,-0.47 -0.12,-0.61L19.14,12.94zM12,15.6c-1.98,0 -3.6,-1.62 -3.6,-3.6s1.62,-3.6 3.6,-3.6 3.6,1.62 3.6,3.6S13.98,15.6 12,15.6z"/></symbol>
+  <symbol id="i-log" viewBox="0 0 24 24"><path d="M3,13h2v-2H3v2zM3,17h2v-2H3v2zM3,9h2V7H3v2zM7,13h14v-2H7v2zM7,17h14v-2H7v2zM7,7v2h14V7H7z"/></symbol>
+  <symbol id="i-music" viewBox="0 0 24 24"><path d="M12,3v10.55c-0.59,-0.34 -1.27,-0.55 -2,-0.55 -2.21,0 -4,1.79 -4,4s1.79,4 4,4 4,-1.79 4,-4V7h4V3h-6z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M8,5v14l11,-7z"/></symbol>
+  <symbol id="i-stop" viewBox="0 0 24 24"><path d="M6,6h12v12H6z"/></symbol>
+  <symbol id="i-robot" viewBox="0 0 24 24"><path d="M12,2a2,2 0 0 1 2,2c0,0.74 -0.4,1.38 -1,1.72V7h4a3,3 0 0 1 3,3v8a3,3 0 0 1 -3,3H7a3,3 0 0 1 -3,-3v-8a3,3 0 0 1 3,-3h4V5.72c-0.6,-0.34 -1,-0.98 -1,-1.72a2,2 0 0 1 2,-2zM8.5,11a1.5,1.5 0 1 0 0,3 1.5,1.5 0 0 0 0,-3zM15.5,11a1.5,1.5 0 1 0 0,3 1.5,1.5 0 0 0 0,-3zM9,17v1.5h6V17z"/></symbol>
+  <symbol id="i-speaker" viewBox="0 0 24 24"><path d="M3,9v6h4l5,5V4L7,9H3zM16.5,12c0,-1.77 -1.02,-3.29 -2.5,-4.03v8.05c1.48,-0.73 2.5,-2.25 2.5,-4.02zM14,3.23v2.06c2.89,0.86 5,3.54 5,6.71s-2.11,5.85 -5,6.71v2.06c4.01,-0.91 7,-4.49 7,-8.77s-2.99,-7.86 -7,-8.77z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12,17.27L18.18,21l-1.64,-7.03L22,9.24l-7.19,-0.61L12,2 9.19,8.63 2,9.24l5.46,4.73L5.82,21z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M19,9h-4V3H9v6H5l7,7 7,-7zM5,18v2h14v-2H5z"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M9,16h6v-6h4l-7,-7 -7,7h4zM5,18h14v2H5z"/></symbol>
+  <symbol id="i-del" viewBox="0 0 24 24"><path d="M6,19c0,1.1 0.9,2 2,2h8c1.1,0 2,-0.9 2,-2V7H6v12zM19,4h-3.5l-1,-1h-5l-1,1H5v2h14V4z"/></symbol>
+  <symbol id="i-add" viewBox="0 0 24 24"><path d="M19,13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M9,16.17L4.83,12l-1.42,1.41L9,19 21,7l-1.41,-1.41z"/></symbol>
+  <symbol id="i-cut" viewBox="0 0 24 24"><path d="M9.64,7.64c0.23,-0.5 0.36,-1.05 0.36,-1.64 0,-2.21 -1.79,-4 -4,-4S2,3.79 2,6s1.79,4 4,4c0.59,0 1.14,-0.13 1.64,-0.36L10,12l-2.36,2.36C7.14,14.13 6.59,14 6,14c-2.21,0 -4,1.79 -4,4s1.79,4 4,4 4,-1.79 4,-4c0,-0.59 -0.13,-1.14 -0.36,-1.64L12,14l7,7h3v-1L9.64,7.64zM6,8c-1.1,0 -2,-0.89 -2,-2s0.9,-2 2,-2 2,0.89 2,2 -0.9,2 -2,2zM6,20c-1.1,0 -2,-0.89 -2,-2s0.9,-2 2,-2 2,0.89 2,2 -0.9,2 -2,2zM12,12.5c-0.28,0 -0.5,-0.22 -0.5,-0.5s0.22,-0.5 0.5,-0.5 0.5,0.22 0.5,0.5 -0.22,0.5 -0.5,0.5zM19,3l-6,6 2,2 7,-7V3z"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M17.65,6.35C16.2,4.9 14.21,4 12,4c-4.42,0 -7.99,3.58 -7.99,8s3.57,8 7.99,8c3.73,0 6.84,-2.55 7.73,-6h-2.08c-0.82,2.33 -3.04,4 -5.65,4 -3.31,0 -6,-2.69 -6,-6s2.69,-6 6,-6c1.66,0 3.14,0.69 4.22,1.78L13,11h7V4l-2.35,2.35z"/></symbol>
+</svg>
+
+<div class="shell">
+  <aside class="side">
+    <div class="brand">
+      <div class="logo"><svg class="i"><use href="#i-robot"/></svg></div>
+      <div><b>EVO Dance</b><span>Robot manager</span></div>
+    </div>
+    <nav class="nav" id="nav">
+      <button data-tab="home" aria-current="page"><svg class="i"><use href="#i-home"/></svg>Home</button>
+      <button data-tab="files"><svg class="i"><use href="#i-folder"/></svg>Files</button>
+      <button data-tab="dance"><svg class="i"><use href="#i-tune"/></svg>Dance list</button>
+      <button data-tab="settings"><svg class="i"><use href="#i-gear"/></svg>Settings</button>
+      <button data-tab="log"><svg class="i"><use href="#i-log"/></svg>Log</button>
+    </nav>
+    <div class="conn" aria-live="polite">
+      <div class="row"><span class="dot" id="connDot"></span><span id="connText">Connecting...</span></div>
+      <div class="muted" id="connDevice" style="margin-top:4px"></div>
+    </div>
+  </aside>
+
+  <main>
+    <!-- HOME -->
+    <section data-view="home">
+      <div class="head"><h1>Home</h1><p class="muted">Status of the robot, the current dance sound, and quick sync.</p></div>
+      <div class="grid">
+        <div class="card">
+          <h3><span class="dot" id="folderDot"></span>Robot folder</h3>
+          <div class="box mono" id="folderPath">-</div>
+          <p class="muted" id="folderText" style="margin:10px 0 0"></p>
+        </div>
+        <div class="card">
+          <h3>Dance list</h3>
+          <div class="big" id="listCount">-</div>
+          <div class="muted" id="listMeta" style="margin:2px 0 14px"></div>
+          <button class="btn" id="openList"><svg class="i"><use href="#i-tune"/></svg>Open dance list</button>
+        </div>
+        <div class="card">
+          <h3>Sync from GitHub</h3>
+          <p class="muted" style="margin:0 0 14px">Pulls straight into the robot folder, replacing the old files. URLs are in Settings.</p>
+          <progress id="pullProg" style="visibility:hidden"></progress>
+          <div class="row" style="margin-top:12px">
+            <button class="btn" data-pull="all"><svg class="i"><use href="#i-down"/></svg>Music + config</button>
+            <button class="btn ghost" data-pull="music">Music</button>
+            <button class="btn ghost" data-pull="json">Config</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Open from another device</h3>
+          <div class="box mono" id="urls">-</div>
+          <p class="muted" style="margin:10px 0 0">Any phone or PC on the same Wi-Fi can open one of these addresses.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- FILES -->
+    <section data-view="files" hidden>
+      <div class="head"><h1>Files</h1><p class="muted">Upload sounds, download backups, and test each one in the browser or on the robot.</p></div>
+      <label class="switch" style="margin:0 0 12px"><input type="checkbox" id="onlyOne"> <span>Only one song: after uploading, make the new sound the <b>only</b> song in the dance list</span></label>
+      <label class="drop" id="drop" tabindex="0">
+        <svg class="i" style="width:30px;height:30px"><use href="#i-up"/></svg>
+        <b>Drop files here or click to upload</b>
+        <span class="muted">mp3, wav, ogg, m4a, aac, flac, json, up to 200 MB each</span>
+        <input type="file" id="picker" multiple hidden accept=".mp3,.wav,.ogg,.m4a,.aac,.flac,.json,audio/*,application/json">
+      </label>
+      <div class="upl" id="uploads"></div>
+      <div class="row" style="justify-content:space-between;margin:22px 0 10px">
+        <h3 style="font-size:15px">In the robot folder <span class="muted" id="fileCount"></span></h3>
+        <button class="btn ghost" id="refreshFiles"><svg class="i"><use href="#i-refresh"/></svg>Refresh</button>
+      </div>
+      <div class="listbar" id="listBar">
+        <b id="activeSummary"></b>
+        <div class="seg" role="group" aria-label="Filter songs">
+          <button data-ff="all" aria-pressed="true">All</button><button data-ff="on" aria-pressed="false">Active</button><button data-ff="off" aria-pressed="false">Inactive</button>
+        </div>
+        <span style="flex:1"></span>
+        <button class="btn tonal" id="allOn">All on</button>
+        <button class="btn ghost" id="allOff">All off</button>
+      </div>
+      <div class="stack" id="fileList" style="gap:10px"></div>
+      <p class="muted" id="filesEmpty" hidden>The robot folder has no files yet.</p>
+    </section>
+
+    <!-- DANCE -->
+    <section data-view="dance" hidden>
+      <div class="head"><h1>Dance list</h1><p class="muted" id="cfgSummary"></p></div>
+      <div class="row" style="margin-bottom:14px">
+        <div class="seg" role="group" aria-label="Editor mode">
+          <button id="modeForm" aria-pressed="true">List</button>
+          <button id="modeRaw" aria-pressed="false">Raw JSON</button>
+        </div>
+        <input type="text" id="cfgSearch" placeholder="Search songs" aria-label="Search songs" style="max-width:240px">
+        <span style="flex:1"></span>
+        <button class="btn tonal" id="addFromFolder"><svg class="i"><use href="#i-add"/></svg>Add song</button>
+        <button class="btn" id="saveCfg"><svg class="i"><use href="#i-check"/></svg>Save to robot</button>
+        <button class="btn ghost" id="reloadCfg"><svg class="i"><use href="#i-refresh"/></svg>Reload</button>
+      </div>
+      <div class="card" id="addPanel" hidden style="margin-bottom:14px"></div>
+      <div id="entries"></div>
+      <label class="f" id="rawWrap" hidden><span>danceconfig.json</span><textarea id="raw" class="mono" spellcheck="false"></textarea></label>
+    </section>
+
+    <!-- SETTINGS -->
+    <section data-view="settings" hidden>
+      <div class="head"><h1>Settings</h1><p class="muted">All robot and server settings. These are the same values the app uses.</p></div>
+      <div class="grid">
+        <div class="card">
+          <h3>Robot and sources</h3>
+          <label class="f"><span>Robot folder path</span><input type="text" id="s_robotPath" class="mono"></label>
+          <label class="f"><span>Music download URL</span><input type="text" id="s_musicUrl"></label>
+          <label class="f"><span>Config (JSON) download URL</span><input type="text" id="s_jsonUrl"></label>
+          <div class="two">
+            <label class="f"><span>Music file name</span><input type="text" id="s_musicName"></label>
+            <label class="f"><span>Config file name</span><input type="text" id="s_jsonName"></label>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card">
+            <h3>Web server</h3>
+            <div class="two">
+              <label class="f"><span>Port</span><input type="number" id="s_port" min="1024" max="65535"></label>
+              <label class="f"><span>Access PIN</span><input type="password" id="s_pin" autocomplete="new-password" placeholder="Unchanged"></label>
+            </div>
+            <label class="switch"><input type="checkbox" id="s_noPin"> <span>Remove the PIN (open access)</span></label>
+            <label class="switch"><input type="checkbox" id="s_autoStart"> <span>Start the server when the app opens</span></label>
+            <p class="muted" id="pinState" style="margin:0"></p>
+          </div>
+          <div class="card">
+            <h3>Test playback volume on robot <span id="volText" style="margin-left:auto;color:var(--text)"></span></h3>
+            <input type="range" id="s_volume" min="0" max="100" step="5" aria-label="Volume">
+          </div>
+        </div>
+      </div>
+      <div class="row" style="margin-top:16px">
+        <button class="btn" id="saveSettings"><svg class="i"><use href="#i-check"/></svg>Save settings</button>
+      </div>
+    </section>
+
+    <!-- LOG -->
+    <section data-view="log" hidden>
+      <div class="head row" style="justify-content:space-between">
+        <div><h1>Activity log</h1><p class="muted">Everything done from the app or this page.</p></div>
+        <button class="btn ghost" id="clearLog"><svg class="i"><use href="#i-del"/></svg>Clear</button>
+      </div>
+      <div class="log mono" id="logBox" role="log" aria-live="polite"></div>
+    </section>
+  </main>
+</div>
+
+<div class="player" id="player">
+  <div class="seg" role="group" aria-label="Play where">
+    <button id="tBrowser" aria-pressed="true">This device</button>
+    <button id="tRobot" aria-pressed="false">Robot</button>
+  </div>
+  <div class="now"><b id="nowName">Nothing playing</b><span class="muted" id="nowSub">Pick a sound in Files to test it.</span></div>
+  <button class="btn" id="nowStop" disabled><svg class="i"><use href="#i-stop"/></svg>Stop</button>
+</div>
+
+<div id="toasts" role="status" aria-live="polite"></div>
+
+<dialog id="pinDlg">
+  <form method="dialog" id="pinForm">
+    <h2 style="font-size:18px;margin-bottom:6px">PIN required</h2>
+    <p class="muted" style="margin:0 0 14px">Enter the access PIN set on the robot.</p>
+    <label class="f"><span>PIN</span><input type="password" id="pinInput" autocomplete="current-password"></label>
+    <div class="row" style="justify-content:flex-end"><button class="btn" value="ok">Unlock</button></div>
+  </form>
+</dialog>
+
+
+<dialog id="trimDlg" class="wide">
+  <h2 style="font-size:18px;margin-bottom:2px">Trim sound</h2>
+  <p class="muted" id="trimFile" style="margin:0 0 14px"></p>
+  <div id="trimLoading" class="muted" style="padding:40px 0;text-align:center">Loading waveform...</div>
+  <div id="trimBody" hidden>
+    <div class="wave"><canvas id="wave" aria-label="Waveform. Drag the highlighted part to choose where the clip starts."></canvas></div>
+    <div class="times"><span id="tStart">0:00.0</span><span class="mid" id="tLen"></span><span id="tEnd">0:00.0</span></div>
+    <div class="row" style="justify-content:space-between;align-items:flex-start;gap:16px">
+      <div>
+        <div class="muted" style="font-size:13px;font-weight:600;margin-bottom:6px">Length</div>
+        <div class="chips" id="lenChips">
+          <button class="chip" data-len="5">5s</button><button class="chip" data-len="10">10s</button>
+          <button class="chip" data-len="15">15s</button><button class="chip" data-len="30">30s</button>
+          <button class="chip" data-len="60">60s</button>
+          <input type="number" id="lenInput" class="sm" min="1" step="0.5" aria-label="Length in seconds"><span class="muted">sec</span>
+        </div>
+      </div>
+      <div class="row">
+        <button class="btn tonal" id="trimPlay"><svg class="i"><use href="#i-play"/></svg>Preview</button>
+      </div>
+    </div>
+    <div class="two" style="margin-top:16px">
+      <label class="f" style="margin:0"><span>Save as</span><input type="text" id="trimName"></label>
+      <label class="f" style="margin:0"><span>Format</span>
+        <select id="trimFmt" style="width:100%;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:10px 12px"><option value="mp3">MP3 (recommended)</option><option value="wav">WAV (largest)</option></select></label>
+    </div>
+    <label class="switch" style="margin-top:12px"><input type="checkbox" id="trimFade" checked> <span>Soft fade in/out (avoids clicks)</span></label>
+    <label class="switch" style="margin-top:0"><input type="checkbox" id="trimCurrent" checked> <span>Add it to the dance list</span></label>
+    <label class="switch" style="margin-top:0"><input type="checkbox" id="trimOnly"> <span>Make it the <b>only</b> song in the dance list</span></label>
+    <p class="muted" id="trimStatus" style="margin:0 0 12px" role="status"></p>
+    <div class="row" style="justify-content:flex-end">
+      <button class="btn ghost" id="trimCancel">Cancel</button>
+      <button class="btn" id="trimSave"><svg class="i"><use href="#i-check"/></svg>Save to robot</button>
+    </div>
+  </div>
+  <div class="row" id="trimErr" hidden style="justify-content:flex-end"><button class="btn ghost" id="trimClose">Close</button></div>
+</dialog>
+
+<audio id="audio" preload="none"></audio>
+
+<script>
+(function(){
+'use strict';
+const $ = (s, r=document) => r.querySelector(s);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const audio = $('#audio');
+let pin = '';
+try { pin = sessionStorage.getItem('evo-pin') || ''; } catch(e){}
+let state = { files: [], status: null, settings: null, playTarget: 'browser', playingName: null, tab: 'home' };
+
+function h(tag, attrs, ...kids){
+  const el = document.createElement(tag);
+  for (const [k,v] of Object.entries(attrs||{})){
+    if (k === 'class') el.className = v;
+    else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+    else if (v !== false && v != null) el.setAttribute(k, v === true ? '' : v);
+  }
+  for (const kid of kids.flat()) if (kid != null) el.append(kid.nodeType ? kid : document.createTextNode(kid));
+  return el;
+}
+function icon(id){ const s = document.createElementNS('http://www.w3.org/2000/svg','svg'); s.setAttribute('class','i'); const u = document.createElementNS('http://www.w3.org/2000/svg','use'); u.setAttribute('href','#'+id); s.append(u); return s; }
+function toast(msg, err){ const t = h('div',{class:'toast'+(err?' err':'')}, msg); $('#toasts').append(t); setTimeout(()=>t.remove(), err?6000:3200); }
+function size(b){ return b<1024? b+' B' : b<1048576 ? (b/1024).toFixed(1)+' KB' : (b/1048576).toFixed(1)+' MB'; }
+function when(ms){ return ms ? new Date(ms).toLocaleString([], {dateStyle:'medium', timeStyle:'short'}) : ''; }
+function clock(ms){ const s = Math.floor(ms/1000); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); }
+const q = encodeURIComponent;
+
+async function askPin(){
+  const dlg = $('#pinDlg'); $('#pinInput').value = '';
+  if (!dlg.open) dlg.showModal();
+  await new Promise(r => dlg.addEventListener('close', r, {once:true}));
+  pin = $('#pinInput').value;
+  try { sessionStorage.setItem('evo-pin', pin); } catch(e){}
+}
+async function api(path, opt={}, retry=true){
+  const headers = Object.assign({'X-Requested-With':'evo'}, opt.headers||{});
+  if (pin) headers['X-Pin'] = pin;
+  let res;
+  try { res = await fetch(path, Object.assign({}, opt, {headers})); }
+  catch(e){ setConn(false); throw new Error('Cannot reach the robot'); }
+  setConn(true);
+  if (res.status === 401 && retry){ await askPin(); return api(path, opt, false); }
+  const data = await res.json().catch(()=>({}));
+  if (!res.ok) throw new Error(data.error || ('HTTP '+res.status));
+  return data;
+}
+const fileUrl = (name, dl) => '/files/'+q(name)+'?'+(dl?'download=1&':'')+(pin?'pin='+q(pin):'');
+const run = async (fn, okMsg) => { try { const r = await fn(); if (okMsg) toast(okMsg); return r; } catch(e){ toast(e.message, true); } };
+
+function setConn(ok){
+  $('#connDot').className = 'dot '+(ok?'ok':'err');
+  $('#connText').textContent = ok ? 'Connected' : 'Robot unreachable';
+}
+
+/* ---------- tabs ---------- */
+function show(tab){
+  state.tab = tab;
+  $$('[data-view]').forEach(v => v.hidden = v.dataset.view !== tab);
+  $$('#nav button').forEach(b => { if (b.dataset.tab === tab) b.setAttribute('aria-current','page'); else b.removeAttribute('aria-current'); });
+  history.replaceState(null,'','#'+tab);
+  if (tab==='files') loadFiles();
+  if (tab==='dance') loadConfig();
+  if (tab==='settings') loadSettings();
+  if (tab==='log') loadLog();
+  if (tab==='home') loadStatus();
+}
+$('#nav').addEventListener('click', e => { const b = e.target.closest('button'); if (b) show(b.dataset.tab); });
+
+/* ---------- status / home ---------- */
+async function loadStatus(){
+  const s = await api('/api/status'); state.status = s;
+  const st = s.storage;
+  $('#connDevice').textContent = s.device;
+  $('#folderPath').textContent = st.path;
+  $('#folderDot').className = 'dot ' + (st.writable ? 'ok' : st.exists ? 'err' : 'warn');
+  $('#folderText').textContent = !st.exists ? 'Folder does not exist yet. It is created on the first upload.' :
+    st.writable ? st.count+' file'+(st.count===1?'':'s')+' ready' : 'Folder is read-only. Grant storage access in the app.';
+  $('#listCount').textContent = st.songs+(st.songs===1?' song':' songs');
+  $('#listMeta').textContent = !st.configExists ? 'No danceconfig.json on the robot yet.' : st.missing ? st.missing+(st.missing===1?' song has':' songs have')+' no sound file on the robot.' : 'All sound files are on the robot.';
+  $('#listMeta').style.color = st.missing ? 'var(--warn)' : '';
+  $('#urls').textContent = s.urls.join('\n');
+  applyRobotPlayer(s.player);
+}
+function applyRobotPlayer(p){
+  const playing = !!(p && p.playing);
+  if (state.playTarget === 'robot' || playing){
+    if (playing){
+      state.playingName = p.name; state.playTarget = 'robot'; syncTarget();
+      $('#nowName').textContent = p.name;
+      $('#nowSub').textContent = 'Playing on robot · '+clock(p.position)+' / '+clock(p.duration);
+      $('#nowStop').disabled = false;
+    } else if (state.playTarget === 'robot' && state.playingName){
+      state.playingName = null;
+      $('#nowName').textContent = 'Nothing playing'; $('#nowSub').textContent = 'Pick a sound in Files to test it.'; $('#nowStop').disabled = true;
+    }
+  }
+  $$('.file').forEach(f => f.classList.toggle('playing', f.dataset.name === state.playingName));
+}
+setInterval(() => {
+  if (document.hidden) return;
+  if (state.tab === 'home') loadStatus().catch(()=>{});
+  else api('/api/status').then(s => { state.status = s; applyRobotPlayer(s.player); }).catch(()=>{});
+}, 1500);
+
+/* ---------- playback ---------- */
+function syncTarget(){
+  $('#tBrowser').setAttribute('aria-pressed', state.playTarget==='browser');
+  $('#tRobot').setAttribute('aria-pressed', state.playTarget==='robot');
+}
+async function stopAll(){
+  audio.pause(); audio.removeAttribute('src');
+  try { await api('/api/player/stop', {method:'POST'}); } catch(e){}
+  state.playingName = null;
+  $('#nowName').textContent = 'Nothing playing'; $('#nowSub').textContent = 'Pick a sound in Files to test it.'; $('#nowStop').disabled = true;
+  $$('.file').forEach(f => f.classList.remove('playing'));
+}
+async function playOn(target, name){
+  await stopAll();
+  state.playTarget = target; syncTarget();
+  if (target === 'browser'){
+    audio.src = fileUrl(name);
+    try { await audio.play(); } catch(e){ toast('Your browser could not play '+name, true); return; }
+    state.playingName = name;
+    $('#nowName').textContent = name; $('#nowSub').textContent = 'Playing in this browser'; $('#nowStop').disabled = false;
+    $$('.file').forEach(f => f.classList.toggle('playing', f.dataset.name === name));
+  } else {
+    await run(() => api('/api/player/play?name='+q(name), {method:'POST'}));
+    const s = await api('/api/status').catch(()=>null); if (s) { state.status = s; applyRobotPlayer(s.player); }
+  }
+}
+audio.addEventListener('timeupdate', () => { if (state.playTarget==='browser' && state.playingName) $('#nowSub').textContent = 'Playing in this browser · '+clock(audio.currentTime*1000)+' / '+clock((audio.duration||0)*1000); });
+audio.addEventListener('ended', () => { state.playingName = null; $('#nowName').textContent = 'Nothing playing'; $('#nowSub').textContent = 'Pick a sound in Files to test it.'; $('#nowStop').disabled = true; $$('.file').forEach(f => f.classList.remove('playing')); });
+audio.addEventListener('error', () => { if (audio.getAttribute('src')) toast('Could not load that sound in the browser', true); });
+$('#nowStop').onclick = stopAll;
+$('#tBrowser').onclick = () => { state.playTarget='browser'; syncTarget(); };
+$('#tRobot').onclick = () => { state.playTarget='robot'; syncTarget(); };
+$('#openList').onclick = () => show('dance');
+
+/* ---------- pull ---------- */
+$$('[data-pull]').forEach(b => b.onclick = async () => {
+  if (b.dataset.pull !== 'music' && !confirm('This replaces danceconfig.json on the robot with the GitHub version. The current list is saved as a backup first. Continue?')) return;
+  const p = $('#pullProg'); p.style.visibility = 'visible'; $$('[data-pull]').forEach(x => x.disabled = true);
+  await run(() => api('/api/pull?type='+b.dataset.pull, {method:'POST'}), 'Pulled from GitHub');
+  p.style.visibility = 'hidden'; $$('[data-pull]').forEach(x => x.disabled = false);
+  loadStatus().catch(()=>{});
+});
+
+/* ---------- files ---------- */
+async function loadFiles(){
+  state.files = await api('/api/files');
+  const list = $('#fileList'); list.replaceChildren();
+  $('#fileCount').textContent = state.files.length ? '('+state.files.length+')' : '';
+  $('#filesEmpty').hidden = state.files.length > 0;
+  const audioFiles = state.files.filter(x => x.audio), on = audioFiles.filter(x => x.inConfig).length;
+  $('#activeSummary').textContent = on+' of '+audioFiles.length+' songs active';
+  $('#listBar').hidden = audioFiles.length === 0;
+  for (const f of state.files.filter(x => state.ff==='all' || !x.audio ? true : (state.ff==='on' ? x.inConfig : !x.inConfig))){
+    const row = h('div',{class:'file'+(f.name===state.playingName?' playing':'')+(f.audio&&!f.inConfig?' off':''), 'data-name':f.name},
+      h('div',{class:'kind'}, icon(f.audio?'i-music':'i-tune')),
+      h('div',{class:'meta'},
+        h('div',{class:'name'}, h('span',{style:'overflow:hidden;text-overflow:ellipsis'}, f.name), f.inConfig ? h('span',{class:'badge'},'ACTIVE') : null),
+        h('div',{class:'muted',style:'font-size:13px'}, size(f.size)+' · '+when(f.modified))),
+      f.audio ? h('button',{class:'icon',title:'Play in this browser','aria-label':'Play in this browser',onclick:()=>playOn('browser',f.name)}, icon('i-speaker')) : null,
+      f.audio ? h('button',{class:'icon',title:'Play on robot','aria-label':'Play on robot',onclick:()=>playOn('robot',f.name)}, icon('i-robot')) : null,
+      f.audio ? h('button',{class:'icon',title:'Trim sound','aria-label':'Trim '+f.name,onclick:()=>openTrim(f.name)}, icon('i-cut')) : null,
+      f.audio ? h('label',{class:'tog',title:'Active songs are in the dance list'}, h('input',{type:'checkbox',checked:f.inConfig,'aria-label':'Active: '+f.name,onchange:e=>toggleList(f,e.target.checked)}), h('span',{class:'knob'}), h('span',{class:'lbl'}, f.inConfig?'Active':'Off')) : null,
+      h('a',{class:'icon',href:fileUrl(f.name,true),title:'Download','aria-label':'Download '+f.name,download:f.name}, icon('i-down')),
+      h('button',{class:'icon del',title:'Delete','aria-label':'Delete '+f.name,onclick:()=>del(f.name)}, icon('i-del')));
+    list.append(row);
+  }
+}
+async function toggleList(f, on){
+  await run(() => api('/api/config/'+(on?'add':'remove')+'?name='+q(f.name), {method:'POST'}));
+  loadFiles();
+}
+state.ff = 'all';
+$$('#listBar [data-ff]').forEach(b => b.onclick = () => { state.ff = b.dataset.ff; $$('#listBar [data-ff]').forEach(x => x.setAttribute('aria-pressed', x===b)); loadFiles(); });
+async function bulk(on){
+  const d = await api('/api/config'), audio = state.files.filter(x => x.audio);
+  let list = d.entries;
+  if (on){ const have = new Set(list.map(o => String(o.fileName||'').replace(/^\/+/, ''))); audio.forEach(x => { if (!have.has(x.name)) list.push({fileName:'/'+x.name, danceEmoji:'0', headAction:'0', footAction:'0'}); }); }
+  else list = [];
+  await api('/api/config', {method:'PUT', body:JSON.stringify(list), headers:{'Content-Type':'application/json'}});
+}
+$('#allOn').onclick = async () => { await run(() => bulk(true), 'All songs are active'); loadFiles(); };
+$('#allOff').onclick = async () => { if (!confirm('Turn every song off? The dance list will be empty. The previous list is kept as a backup.')) return; await run(() => bulk(false), 'All songs are off'); loadFiles(); };
+async function del(name){
+  if (!confirm('Delete '+name+' from the robot?')) return;
+  if (state.playingName === name) await stopAll();
+  await run(() => api('/api/files?name='+q(name), {method:'DELETE'}), 'Deleted '+name); loadFiles();
+}
+$('#refreshFiles').onclick = () => run(loadFiles);
+
+const drop = $('#drop'), picker = $('#picker');
+drop.addEventListener('keydown', e => { if (e.key==='Enter'||e.key===' '){ e.preventDefault(); picker.click(); } });
+['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', e => uploadAll([...e.dataTransfer.files]));
+picker.addEventListener('change', () => { uploadAll([...picker.files]); picker.value=''; });
+
+function uploadOne(file){
+  return new Promise(resolve => {
+    const bar = h('progress',{value:0,max:100}), label = h('span',{}, file.name+' · '+size(file.size));
+    const item = h('div',{}, label, bar); $('#uploads').prepend(item);
+    const send = (retry) => {
+      const x = new XMLHttpRequest();
+      x.open('POST','/api/files?name='+q(file.name));
+      x.setRequestHeader('X-Requested-With','evo'); if (pin) x.setRequestHeader('X-Pin',pin);
+      x.upload.onprogress = e => { if (e.lengthComputable) bar.value = e.loaded*100/e.total; };
+      x.onload = async () => {
+        if (x.status === 401 && retry){ await askPin(); return send(false); }
+        let d = {}; try { d = JSON.parse(x.responseText); } catch(e){}
+        if (x.status === 200){ bar.value = 100; label.textContent = '✓ '+file.name+' uploaded'; toast(file.name+' uploaded'); }
+        else { label.textContent = '✕ '+file.name+': '+(d.error||('HTTP '+x.status)); label.style.color='var(--err)'; bar.remove(); toast(d.error||'Upload failed', true); }
+        setTimeout(() => item.remove(), 8000); resolve();
+      };
+      x.onerror = () => { label.textContent = '✕ '+file.name+': connection lost'; label.style.color='var(--err)'; bar.remove(); resolve(); };
+      x.send(file);
+    };
+    send(true);
+  });
+}
+async function uploadAll(files){
+  for (const f of files) await uploadOne(f);
+  const audio = files.filter(f => /\.(mp3|wav|ogg|m4a|aac|flac)$/i.test(f.name));
+  if ($('#onlyOne').checked){
+    if (audio.length === 1) await run(() => api('/api/config/only?name='+q(audio[0].name), {method:'POST'}), audio[0].name+' is now the only song in the dance list');
+    else toast('Only one song: upload exactly one sound file at a time.', true);
+  }
+  if (state.tab==='files') loadFiles();
+}
+
+/* ---------- trim editor ---------- */
+const T = { buf:null, name:'', start:0, len:15, ctx:null, src:null, raf:0, playAt:0, peaks:null, dragOff:null };
+const fmtT = sec => { const m = Math.floor(sec/60), s = sec - m*60; return m+':'+s.toFixed(1).padStart(4,'0'); };
+function loadLame(){
+  if (window.lamejs) return Promise.resolve(true);
+  return new Promise(res => { const sc = document.createElement('script'); sc.src = '/lame.min.js'; sc.onload = () => res(!!window.lamejs); sc.onerror = () => res(false); document.head.append(sc); });
+}
+async function openTrim(name){
+  const dlg = $('#trimDlg'); T.name = name; stopTrimPlay();
+  $('#trimFile').textContent = name; $('#trimBody').hidden = true; $('#trimErr').hidden = true; $('#trimLoading').hidden = false; $('#trimLoading').textContent = 'Loading waveform...';
+  if (!dlg.open) dlg.showModal();
+  await stopAll();
+  try {
+    const res = await fetch(fileUrl(name), {headers: pin ? {'X-Pin':pin} : {}});
+    if (!res.ok) throw new Error('Could not download the sound (HTTP '+res.status+')');
+    const data = await res.arrayBuffer();
+    T.ctx = T.ctx || new (window.AudioContext || window.webkitAudioContext)();
+    T.buf = await new Promise((ok, bad) => T.ctx.decodeAudioData(data, ok, () => bad(new Error('This browser cannot read that audio file'))));
+  } catch(e){ $('#trimLoading').textContent = e.message; $('#trimErr').hidden = false; return; }
+  const total = T.buf.duration;
+  T.len = Math.min(T.len, total); T.start = 0;
+  $('#trimName').value = name.replace(/\.[^.]+$/,'') + '-trim';
+  $('#trimLoading').hidden = true; $('#trimBody').hidden = false; $('#trimStatus').textContent = '';
+  $('#lenInput').max = total.toFixed(1);
+  computePeaks(); setLen(T.len);
+  if (!(await loadLame())){ $('#trimFmt').value = 'wav'; $('#trimStatus').textContent = 'MP3 encoder unavailable, saving as WAV.'; }
+}
+function computePeaks(){
+  const cv = $('#wave'), w = Math.max(300, cv.clientWidth), n = Math.floor(w/3);
+  const ch = T.buf.getChannelData(0), step = Math.max(1, Math.floor(ch.length/n)); T.peaks = new Float32Array(n);
+  for (let i=0;i<n;i++){ let mx=0; for (let j=i*step;j<Math.min(ch.length,(i+1)*step);j+=Math.max(1,step>>6)){ const v=Math.abs(ch[j]); if (v>mx) mx=v; } T.peaks[i]=mx; }
+  const m = Math.max(...T.peaks) || 1; for (let i=0;i<n;i++) T.peaks[i] /= m;
+}
+function setLen(len){
+  const total = T.buf.duration; len = Math.max(0.5, Math.min(total, len)); T.len = len;
+  T.start = Math.max(0, Math.min(total-len, T.start));
+  $$('#lenChips .chip').forEach(c => c.setAttribute('aria-pressed', Number(c.dataset.len) === len));
+  if (document.activeElement !== $('#lenInput')) $('#lenInput').value = +len.toFixed(1);
+  drawWave();
+}
+function drawWave(playPos){
+  const cv = $('#wave'), dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  if (cv.width !== Math.round(W*dpr)){ cv.width = Math.round(W*dpr); cv.height = Math.round(H*dpr); }
+  const g = cv.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0); g.clearRect(0,0,W,H);
+  const css = getComputedStyle(document.documentElement), prim = css.getPropertyValue('--primary').trim(), mute = css.getPropertyValue('--muted').trim();
+  const total = T.buf.duration, x0 = T.start/total*W, x1 = (T.start+T.len)/total*W, n = T.peaks.length, bw = W/n;
+  g.fillStyle = 'rgba(128,128,150,.18)'; g.fillRect(0,0,x0,H); g.fillRect(x1,0,W-x1,H);
+  g.fillStyle = 'rgba(109,74,255,.16)'; g.fillRect(x0,0,x1-x0,H);
+  for (let i=0;i<n;i++){ const x = i*bw, inside = x+bw>x0 && x<x1, h = Math.max(2, T.peaks[i]*(H-30)); g.fillStyle = inside ? prim : mute; g.globalAlpha = inside ? 1 : .55; g.fillRect(x+0.5, (H-h)/2, Math.max(1,bw-1.5), h); }
+  g.globalAlpha = 1; g.strokeStyle = prim; g.lineWidth = 3; g.strokeRect(x0+1.5,1.5,Math.max(4,x1-x0-3),H-3);
+  g.fillStyle = prim; [x0+1.5, x1-1.5].forEach(x => { g.fillRect(x-4,H/2-16,8,32); });
+  if (playPos != null){ const px = playPos/total*W; g.fillStyle = css.getPropertyValue('--text').trim(); g.fillRect(px-1,0,2,H); }
+  $('#tStart').textContent = fmtT(T.start); $('#tEnd').textContent = fmtT(T.start+T.len); $('#tLen').textContent = T.len.toFixed(1)+' s clip of '+fmtT(total);
+}
+(function(){
+  const cv = $('#wave');
+  const posToTime = e => { const r = cv.getBoundingClientRect(); return (e.clientX - r.left)/r.width*T.buf.duration; };
+  cv.addEventListener('pointerdown', e => {
+    if (!T.buf) return; cv.setPointerCapture(e.pointerId); cv.classList.add('drag');
+    const t = posToTime(e);
+    T.dragOff = (t >= T.start && t <= T.start+T.len) ? t - T.start : T.len/2; // click outside: centre the clip there
+    T.start = Math.max(0, Math.min(T.buf.duration-T.len, t - T.dragOff)); stopTrimPlay(); drawWave();
+  });
+  cv.addEventListener('pointermove', e => { if (T.dragOff == null) return; T.start = Math.max(0, Math.min(T.buf.duration-T.len, posToTime(e) - T.dragOff)); drawWave(); });
+  const end = () => { T.dragOff = null; cv.classList.remove('drag'); };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+  cv.tabIndex = 0;
+  cv.addEventListener('keydown', e => { if (!T.buf) return; const d = e.shiftKey ? 1 : 0.1; if (e.key==='ArrowLeft'){ T.start = Math.max(0,T.start-d); drawWave(); e.preventDefault(); } if (e.key==='ArrowRight'){ T.start = Math.min(T.buf.duration-T.len,T.start+d); drawWave(); e.preventDefault(); } });
+  $('#lenChips').addEventListener('click', e => { const c = e.target.closest('.chip'); if (c && T.buf){ stopTrimPlay(); setLen(Number(c.dataset.len)); } });
+  $('#lenInput').addEventListener('input', e => { const v = Number(e.target.value); if (T.buf && v > 0){ stopTrimPlay(); setLen(v); } });
+  $('#lenInput').addEventListener('change', () => { if (T.buf) $('#lenInput').value = +T.len.toFixed(1); });
+  window.addEventListener('resize', () => { if ($('#trimDlg').open && T.buf){ computePeaks(); drawWave(); } });
+})();
+function stopTrimPlay(){
+  if (T.src){ try { T.src.onended = null; T.src.stop(); } catch(e){} T.src = null; }
+  cancelAnimationFrame(T.raf); $('#trimPlay').replaceChildren(icon('i-play'), 'Preview');
+  if (T.buf && $('#trimDlg').open && !$('#trimBody').hidden) drawWave();
+}
+function playTrim(){
+  if (T.src) return stopTrimPlay();
+  if (T.ctx.state === 'suspended') T.ctx.resume();
+  const src = T.ctx.createBufferSource(); src.buffer = T.buf; src.connect(T.ctx.destination);
+  const from = T.start, dur = T.len; src.start(0, from, dur); T.src = src; T.playAt = T.ctx.currentTime;
+  $('#trimPlay').replaceChildren(icon('i-stop'), 'Stop');
+  src.onended = () => stopTrimPlay();
+  const tick = () => { if (!T.src) return; drawWave(from + Math.min(dur, T.ctx.currentTime - T.playAt)); T.raf = requestAnimationFrame(tick); };
+  tick();
+}
+$('#trimPlay').onclick = playTrim;
+$('#trimCancel').onclick = $('#trimClose').onclick = () => { stopTrimPlay(); $('#trimDlg').close(); };
+$('#trimDlg').addEventListener('close', stopTrimPlay);
+
+function cutSamples(){
+  const sr = T.buf.sampleRate, a = Math.round(T.start*sr), b = Math.min(T.buf.length, a+Math.round(T.len*sr)), n = b-a;
+  const chans = Math.min(2, T.buf.numberOfChannels), fade = $('#trimFade').checked ? Math.min(Math.round(0.12*sr), n>>1) : 0, out = [];
+  for (let c=0;c<chans;c++){
+    const src = T.buf.getChannelData(c).subarray(a,b), pcm = new Int16Array(n);
+    for (let i=0;i<n;i++){ let v = src[i]; if (i<fade) v *= i/fade; else if (i>=n-fade) v *= (n-1-i)/fade; v = Math.max(-1,Math.min(1,v)); pcm[i] = v<0 ? v*0x8000 : v*0x7FFF; }
+    out.push(pcm);
+  }
+  return {pcm:out, sr, n};
+}
+function encodeWav({pcm, sr, n}){
+  const ch = pcm.length, bytes = n*ch*2, ab = new ArrayBuffer(44+bytes), v = new DataView(ab), w = (o,s) => [...s].forEach((c,i) => v.setUint8(o+i,c.charCodeAt(0)));
+  w(0,'RIFF'); v.setUint32(4,36+bytes,true); w(8,'WAVE'); w(12,'fmt '); v.setUint32(16,16,true); v.setUint16(20,1,true); v.setUint16(22,ch,true);
+  v.setUint32(24,sr,true); v.setUint32(28,sr*ch*2,true); v.setUint16(32,ch*2,true); v.setUint16(34,16,true); w(36,'data'); v.setUint32(40,bytes,true);
+  let o = 44; for (let i=0;i<n;i++) for (let c=0;c<ch;c++){ v.setInt16(o,pcm[c][i],true); o+=2; }
+  return new Blob([ab], {type:'audio/wav'});
+}
+function encodeMp3({pcm, sr, n}){
+  const enc = new lamejs.Mp3Encoder(pcm.length, sr, 128), parts = [], blk = 1152;
+  for (let i=0;i<n;i+=blk){ const l = pcm[0].subarray(i,i+blk), buf = pcm.length>1 ? enc.encodeBuffer(l, pcm[1].subarray(i,i+blk)) : enc.encodeBuffer(l); if (buf.length) parts.push(new Uint8Array(buf)); }
+  const end = enc.flush(); if (end.length) parts.push(new Uint8Array(end));
+  return new Blob(parts, {type:'audio/mpeg'});
+}
+$('#trimSave').onclick = async () => {
+  const btn = $('#trimSave'), st = $('#trimStatus'); stopTrimPlay();
+  const fmt = $('#trimFmt').value, base = $('#trimName').value.trim().replace(/\.(mp3|wav)$/i,'');
+  if (!/^[A-Za-z0-9._() -]{1,90}$/.test(base)) { st.textContent = 'Use letters, digits, spaces and . _ - ( ) in the name.'; st.style.color = 'var(--err)'; return; }
+  if (fmt === 'mp3' && !window.lamejs) { st.textContent = 'MP3 encoder is not loaded. Choose WAV.'; st.style.color = 'var(--err)'; return; }
+  const fname = base+'.'+fmt; st.style.color = ''; btn.disabled = true; st.textContent = 'Encoding '+T.len.toFixed(1)+' s...';
+  await new Promise(r => setTimeout(r, 30)); // let the UI paint before the heavy work
+  try {
+    const cut = cutSamples(), blob = fmt === 'mp3' ? encodeMp3(cut) : encodeWav(cut);
+    st.textContent = 'Uploading '+size(blob.size)+'...';
+    await api('/api/files?name='+q(fname), {method:'POST', body:blob});
+    const only = $('#trimOnly').checked, addToList = $('#trimCurrent').checked;
+    if (only) await api('/api/config/only?name='+q(fname), {method:'POST'});
+    else if (addToList) await api('/api/config/add?name='+q(fname), {method:'POST'});
+    toast(fname+' saved to the robot'+(only?' as the only song':addToList?' and added to the dance list':''));
+    $('#trimDlg').close(); if (state.tab==='files') loadFiles(); if (state.tab==='home') loadStatus();
+  } catch(e){ st.textContent = e.message; st.style.color = 'var(--err)'; }
+  btn.disabled = false;
+};
+
+/* ---------- dance config ---------- */
+let cfgMode = 'form', cfgEntries = [], cfgFiles = new Set(), cfgFilter = '';
+const fileOf = o => String(o.fileName == null ? '' : o.fileName).replace(/^\/+/, '');
+function choice(entry, key){
+  const vals = ['0','1']; const cur = entry[key] == null ? '0' : String(entry[key]); if (!vals.includes(cur)) vals.push(cur);
+  const sel = h('select',{'aria-label':key}, vals.map(v => h('option',{value:v, selected:v===cur}, v)));
+  sel.addEventListener('change', () => { entry[key] = sel.value; });
+  return sel;
+}
+function songRow(entry){
+  const name = fileOf(entry), present = cfgFiles.has(name);
+  const nameIn = h('input',{type:'text',class:'mono nm',value:entry.fileName==null?'':String(entry.fileName),placeholder:'/song.mp3','aria-label':'Sound file name'});
+  const row = h('div',{class:'song'+(present?'':' missing')});
+  const play = (target) => h('button',{class:'icon',title:target==='robot'?'Play on robot':'Play in this browser','aria-label':(target==='robot'?'Play on robot: ':'Play in browser: ')+name,disabled:!present,onclick:()=>playOn(target, fileOf(entry))}, icon(target==='robot'?'i-robot':'i-speaker'));
+  nameIn.addEventListener('input', () => {
+    entry.fileName = nameIn.value; const ok = cfgFiles.has(fileOf(entry));
+    row.classList.toggle('missing', !ok); $$('button.icon:not(.del)', row).forEach(b => b.disabled = !ok); sumCfg();
+  });
+  row.append(h('div',{class:'cell'}, nameIn, present ? null : h('span',{class:'tag'},'no file on robot')),
+    choice(entry,'danceEmoji'), choice(entry,'headAction'), choice(entry,'footAction'),
+    h('div',{class:'acts'}, play('browser'), play('robot'),
+      h('button',{class:'icon del',title:'Remove song','aria-label':'Remove '+name,onclick:()=>{ cfgEntries.splice(cfgEntries.indexOf(entry),1); drawForm(); }}, icon('i-del'))));
+  return row;
+}
+function unlisted(){ const inList = new Set(cfgEntries.map(fileOf)); return state.files.filter(f => f.audio && !inList.has(f.name)); }
+function sumCfg(){
+  const missing = cfgEntries.filter(o => !cfgFiles.has(fileOf(o))).length, extra = unlisted().length;
+  $('#cfgSummary').textContent = cfgEntries.length+(cfgEntries.length===1?' song':' songs')+(missing?' · '+missing+' without a sound file on the robot':'')+(extra?' · '+extra+' files in the folder not in the list':'');
+  $('#addFromFolder').textContent = extra ? 'Add song ('+extra+' in folder)' : 'Add song';
+}
+function drawForm(){
+  const box = $('#entries'), f = cfgFilter.toLowerCase();
+  const rows = cfgEntries.filter(o => !f || fileOf(o).toLowerCase().includes(f)).map(songRow);
+  box.replaceChildren(h('div',{class:'song songhead'}, h('span',{},'Sound file'), h('span',{},'Emoji'), h('span',{},'Head'), h('span',{},'Foot'), h('span',{})),
+    ...(rows.length ? rows : [h('p',{class:'muted',style:'padding:14px'}, cfgEntries.length ? 'No songs match your search.' : 'The dance list is empty. Add a song to start.')]));
+  drawAddPanel(); sumCfg();
+}
+function drawAddPanel(){
+  const list = unlisted(), p = $('#addPanel');
+  p.replaceChildren(h('h3',{},'Files in the robot folder that are not in the dance list'),
+    h('div',{class:'chips'}, list.length ? list.map(f => h('button',{class:'chip',onclick:()=>{ cfgEntries.push({fileName:'/'+f.name,danceEmoji:'0',headAction:'0',footAction:'0'}); drawForm(); }}, '+ '+f.name)) : h('span',{class:'muted'},'Everything in the folder is already listed.')),
+    h('div',{class:'row',style:'margin-top:14px'}, h('button',{class:'btn ghost',onclick:()=>{ cfgEntries.push({fileName:'',danceEmoji:'0',headAction:'0',footAction:'0'}); cfgFilter=''; $('#cfgSearch').value=''; drawForm(); const ins = $$('#entries .nm'); ins[ins.length-1]?.focus(); }}, icon('i-add'), 'Blank row')));
+}
+async function loadConfig(){
+  const [d, files] = await Promise.all([api('/api/config'), api('/api/files')]);
+  state.files = files; cfgFiles = new Set(files.map(f => f.name)); cfgEntries = d.entries;
+  $('#raw').value = JSON.stringify(d.entries, null, 2); drawForm();
+}
+function setMode(m){
+  if (m === cfgMode) return;
+  if (m === 'raw'){ $('#raw').value = JSON.stringify(cfgEntries, null, 2); }
+  else { try { const v = JSON.parse($('#raw').value); if (!Array.isArray(v) || v.some(o => o === null || typeof o !== 'object' || Array.isArray(o))) throw new Error('Must be a JSON array of objects'); cfgEntries = v; drawForm(); } catch(e){ toast('Fix the JSON first: '+e.message, true); return; } }
+  cfgMode = m;
+  $('#entries').hidden = m==='raw'; $('#rawWrap').hidden = m!=='raw'; $('#addFromFolder').hidden = $('#cfgSearch').hidden = m==='raw';
+  if (m==='raw') $('#addPanel').hidden = true;
+  $('#modeForm').setAttribute('aria-pressed', m==='form'); $('#modeRaw').setAttribute('aria-pressed', m==='raw');
+}
+$('#modeForm').onclick = () => setMode('form'); $('#modeRaw').onclick = () => setMode('raw');
+$('#cfgSearch').addEventListener('input', e => { cfgFilter = e.target.value.trim(); drawForm(); });
+$('#addFromFolder').onclick = () => { const p = $('#addPanel'); p.hidden = !p.hidden; };
+$('#reloadCfg').onclick = () => run(loadConfig, 'Reloaded from robot');
+$('#saveCfg').onclick = async () => {
+  let list;
+  if (cfgMode === 'raw'){ try { list = JSON.parse($('#raw').value); } catch(e){ return toast('Invalid JSON: '+e.message, true); } }
+  else { list = cfgEntries; const i = list.findIndex(o => !String(o.fileName||'').trim()); if (i>=0) return toast('Song '+(i+1)+' needs a sound file name', true); }
+  await run(() => api('/api/config', {method:'PUT', body:JSON.stringify(list), headers:{'Content-Type':'application/json'}}), 'Dance list saved. The previous list is kept as a backup.');
+  loadConfig().catch(()=>{});
+};
+
+/* ---------- settings ---------- */
+const SKEYS = ['robotPath','musicUrl','jsonUrl','musicName','jsonName','port'];
+async function loadSettings(){
+  const s = await api('/api/settings'); state.settings = s;
+  SKEYS.forEach(k => $('#s_'+k).value = s[k]);
+  $('#s_autoStart').checked = s.autoStart; $('#s_volume').value = s.volume; $('#volText').textContent = s.volume+'%';
+  $('#s_pin').value = ''; $('#s_noPin').checked = false;
+  $('#pinState').textContent = s.pinEnabled ? 'A PIN is currently required to use this page.' : 'No PIN set: anyone on the network can use this page.';
+}
+$('#s_volume').oninput = e => $('#volText').textContent = e.target.value+'%';
+$('#saveSettings').onclick = async () => {
+  const body = {}; SKEYS.forEach(k => body[k] = k==='port' ? Number($('#s_'+k).value) : $('#s_'+k).value);
+  body.autoStart = $('#s_autoStart').checked; body.volume = Number($('#s_volume').value);
+  if ($('#s_noPin').checked) body.pin = ''; else if ($('#s_pin').value) body.pin = $('#s_pin').value;
+  const r = await run(() => api('/api/settings', {method:'PUT', body:JSON.stringify(body), headers:{'Content-Type':'application/json'}}), 'Settings saved');
+  if (!r) return;
+  if ('pin' in body){ pin = body.pin; try { sessionStorage.setItem('evo-pin', pin); } catch(e){} }
+  if (r.portChanged){ toast('Server is moving to port '+r.newPort+'...'); setTimeout(() => location.href = location.protocol+'//'+location.hostname+':'+r.newPort+'/#settings', 1800); return; }
+  loadSettings();
+};
+
+/* ---------- log ---------- */
+async function loadLog(){
+  const rows = await api('/api/log'); const box = $('#logBox'); const atEnd = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  box.replaceChildren(...rows.map(r => h('div',{class:r.level}, new Date(r.t).toLocaleTimeString([], {hour12:false})+'  '+r.msg)));
+  if (atEnd) box.scrollTop = box.scrollHeight;
+}
+$('#clearLog').onclick = async () => { await run(() => api('/api/log',{method:'DELETE'})); loadLog(); };
+setInterval(() => { if (state.tab==='log' && !document.hidden) loadLog().catch(()=>{}); }, 2000);
+
+/* ---------- boot ---------- */
+(async () => {
+  try { state.settings = await api('/api/settings'); } catch(e){ toast(e.message, true); }
+  const start = location.hash.slice(1);
+  show(['home','files','dance','settings','log'].includes(start) ? start : 'home');
+})();
+})();
+</script>
+</body>
+</html>

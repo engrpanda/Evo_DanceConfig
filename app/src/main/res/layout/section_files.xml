@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:padding="24dp"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Files" />
+
+        <TextView
+            style="@style/Text.Muted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="16dp"
+            android:text="Switch a song on to put it in the dance list. Tap play to test it on the robot." />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnImport"
+                style="@style/Btn.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Import file"
+                app:icon="@drawable/ic_import" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPullMusic"
+                style="@style/Btn.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Pull music"
+                app:icon="@drawable/ic_download" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnPullJson"
+                style="@style/Btn.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Pull config"
+                app:icon="@drawable/ic_download" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnRefreshFiles"
+                style="@style/Btn.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Refresh"
+                app:icon="@drawable/ic_refresh" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/activeBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/tvActiveSummary"
+                style="@style/Text.Body"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textStyle="bold" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAllOn"
+                style="@style/Btn.Tonal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="All on" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnAllOff"
+                style="@style/Btn.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="All off" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvFilesEmpty"
+            style="@style/Text.Muted"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="24dp"
+            android:text="No files in the robot folder yet. Import one, pull from GitHub, or upload from the web page."
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/filesContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+    </LinearLayout>
+</ScrollView>

@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:clipToPadding="false"
+    android:padding="24dp"
+    android:visibility="gone">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            style="@style/Text.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings" />
+
+        <TextView
+            style="@style/Text.Muted"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="16dp"
+            android:text="Everything the app needs to talk to the robot. The same settings are available from the web page." />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:baselineAligned="false"
+            android:orientation="horizontal">
+
+            <!-- Robot + sources -->
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <TextView
+                        style="@style/Text.Section"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="14dp"
+                        android:text="Robot and sources" />
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Robot folder path">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etRobotPath"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri"
+                            android:singleLine="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Music download URL">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etMusicUrl"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri"
+                            android:singleLine="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Field"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="Config (JSON) download URL">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/etJsonUrl"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textUri"
+                            android:singleLine="true" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Field"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                                                                                    android:hint="Music file name">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etMusicName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:singleLine="true" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Field"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                                                        android:hint="Config file name">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etJsonName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="textNoSuggestions"
+                                android:singleLine="true" />
+                        </com.google.android.material.textfield.TextInputLayout>
+                    </LinearLayout>
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Server + audio -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            style="@style/Text.Section"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="14dp"
+                            android:text="Web server" />
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/Field"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="8dp"
+                                android:layout_weight="1"
+                                android:hint="Port">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etPort"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="number"
+                                    android:singleLine="true" />
+                            </com.google.android.material.textfield.TextInputLayout>
+
+                            <com.google.android.material.textfield.TextInputLayout
+                                style="@style/Field"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:hint="Access PIN">
+
+                                <com.google.android.material.textfield.TextInputEditText
+                                    android:id="@+id/etPin"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:inputType="textPassword"
+                                    android:singleLine="true" />
+                            </com.google.android.material.textfield.TextInputLayout>
+                        </LinearLayout>
+
+                        <com.google.android.material.materialswitch.MaterialSwitch
+                            android:id="@+id/switchAutoStart"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Start the web server when the app opens" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <TextView
+                                style="@style/Text.Section"
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="1"
+                                android:text="Test playback volume" />
+
+                            <TextView
+                                android:id="@+id/tvVolume"
+                                style="@style/Text.Body"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textStyle="bold" />
+                        </LinearLayout>
+
+                        <com.google.android.material.slider.Slider
+                            android:id="@+id/sliderVolume"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:valueFrom="0"
+                            android:valueTo="100"
+                            android:stepSize="5"
+                            app:tickVisible="false" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="20dp">
+
+                        <TextView
+                            style="@style/Text.Section"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="14dp"
+                            android:text="Display" />
+
+                        <com.google.android.material.textfield.TextInputLayout
+                            style="@style/Field"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="UI density (dpi)">
+
+                            <com.google.android.material.textfield.TextInputEditText
+                                android:id="@+id/etUiDpi"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:inputType="number"
+                                android:singleLine="true" />
+                        </com.google.android.material.textfield.TextInputLayout>
+
+                        <TextView
+                            style="@style/Text.Muted"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Lower = smaller UI with more room (try 320). Higher = bigger. 0 uses the system size. Applies when you save." />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+            </LinearLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSaveSettings"
+                style="@style/Btn.Primary"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Save settings"
+                app:icon="@drawable/ic_check" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnResetSettings"
+                style="@style/Btn.Outlined"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="8dp"
+                android:text="Reset to defaults"
+                app:icon="@drawable/ic_refresh" />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnExit"
+                style="@style/Btn.Danger"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Exit app"
+                app:icon="@drawable/ic_power" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

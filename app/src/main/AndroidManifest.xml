@@ -1,21 +1,27 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.evo.danceconfig">
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
-        android:maxSdkVersion="28" />
+        android:maxSdkVersion="29" />
+    <!-- Android 11+: the robot folder lives outside the app, so all-files access is required. -->
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
 
-    <!-- recommended: put launcher icons in mipmap/ -->
     <application
+        android:name=".DanceApp"
         android:allowBackup="true"
-        android:label="EVO Dance Manager"
         android:icon="@mipmap/dancelogo"
+        android:label="EVO Dance Manager"
+        android:requestLegacyExternalStorage="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
 
-        <!-- FileProvider for DownloadManager & sharing files -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -28,9 +34,10 @@
 
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
             android:exported="true"
             android:screenOrientation="landscape"
-            android:configChanges="orientation|screenSize">
+            android:windowSoftInputMode="adjustResize">
 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

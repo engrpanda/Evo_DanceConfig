@@ -1,10 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <!-- Brand -->
+    <color name="brand_violet">#6D4AFF</color>
+    <color name="brand_violet_light">#B7A6FF</color>
+    <color name="brand_cyan">#0891B2</color>
+    <color name="brand_cyan_light">#5EE3FF</color>
+
+    <!-- Light surfaces -->
+    <color name="bg_light">#F4F5FA</color>
+    <color name="card_light">#FFFFFF</color>
+    <color name="text_light">#171A26</color>
+    <color name="muted_light">#5E6378</color>
+    <color name="line_light">#E1E3EE</color>
+
+    <!-- Dark surfaces -->
+    <color name="bg_dark">#0F1117</color>
+    <color name="card_dark">#181B25</color>
+    <color name="text_dark">#EEF0F8</color>
+    <color name="muted_dark">#9AA0B8</color>
+    <color name="line_dark">#2A2E3D</color>
+
+    <!-- Status -->
+    <color name="status_ok">#22C55E</color>
+    <color name="status_warn">#F59E0B</color>
+    <color name="status_error">#EF4444</color>
+
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 </resources>
